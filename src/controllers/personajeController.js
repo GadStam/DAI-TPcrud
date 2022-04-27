@@ -25,7 +25,8 @@ router.put('/:id', async (req, res) => {
   console.log(`Request URL Param: ${req.params.id}`);
   console.log(`This is a put operation`);
 
-  const personaje = await personajeService.updatePersonajeById(req.body);
+  const personaje = await personajeService.updatePersonajeById(req.params.id, req.body);
+  
 
   return res.status(200).json(personaje);
 });
@@ -38,5 +39,16 @@ router.delete('/:id', async (req, res) => {
 
   return res.status(200).json(personaje);
 });
+
+router.get('/search/hola', async (req, res) => {
+ 
+  console.log(`This is a get operation`);
+  console.log(req.query.nombre);
+  const personajes = await personajeService.getPersonajeByNombre(req.query.nombre);
+ 
+  return res.status(200).json(personajes);
+});
+
+
 
 export default router;

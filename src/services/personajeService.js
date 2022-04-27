@@ -38,15 +38,16 @@ export class PersonajeService {
 
         const pool = await sql.connect(config);
         const response = await pool.request()
-            .input('id',sql.Int, id)
+            .input('Id',sql.Int, id)
             .input('Nombre',sql.VarChar, personaje?.Nombre ?? '')
             .input('Imagen',sql.VarChar, personaje?.Imagen ?? '')
             .input('Edad',sql.Int, personaje?.Edad ?? 0)
             .input('Peso',sql.Float, personaje?.Peso ?? 0)
             .input('Historia',sql.VarChar, personaje?.Historia ?? '')
             .input('Nacimiento',sql.VarChar, personaje?.Nacimiento ?? '')
-            .query(`UPDATE Personajes SET Nombre = @Nombre, Imagen = @Imagen, Edad = @Edad, Peso = @Peso, Historia = @Historia, Nacimiento = @Nacimiento WHERE Id = @Id`);
+            .query(`UPDATE ${personajeTabla} SET Nombre = @Nombre, Imagen = @Imagen, Edad = @Edad, Peso = @Peso, Historia = @Historia, Nacimiento = @Nacimiento WHERE Id = @Id`);
         console.log(response)
+        console.log(personaje.id)
 
         return response.recordset;
     }
@@ -63,6 +64,14 @@ export class PersonajeService {
         return response.recordset;
     }
 
+    getPersonajeByNombre = async (nombre) => {
+        console.log('This is a function on the service');
+        const pool = await sql.connect(config);
+        const response = await pool.request()
+        .input('Nombre',sql.VarChar, nombre)
+        .query(`SELECT * from ${personajeTabla} where Nombre = @Nombre`);
+        console.log(response)
 
-
+        return response.recordset[0];
+    }
 }
