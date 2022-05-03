@@ -6,11 +6,19 @@ const personajeTabla = process.env.DB_TABLA_PERSONAJE;
 
 export class PersonajeService {
 
-    getPersonaje = async () => {
+    getPersonaje = async (nombre,edad) => {
         console.log('This is a function on the service');
-
+        let response = 0;
         const pool = await sql.connect(config);
-        const response = await pool.request().query(`SELECT * from ${personajeTabla}`);
+        if(nombre==undefined){
+            if(edad==undefined){
+                 response = await pool.request().query(`SELECT * from ${personajeTabla}`);
+            }else{
+                 response = await pool.request().input('Edad',sql.Int,edad).query(`SELECT * from ${personajeTabla} WHERE Edad=@edad`);
+            }
+        }else{
+             response = await pool.request().input('Nombre',sql.VarChar,nombre).query(`SELECT * from ${personajeTabla} WHERE Nombre=@nombre`);
+        }
         console.log(response)
 
         return response.recordset;
@@ -62,16 +70,5 @@ export class PersonajeService {
         console.log(response)
 
         return response.recordset;
-    }
-
-    getPersonajeByNombre = async (nombre) => {
-        console.log('This is a function on the service');
-        const pool = await sql.connect(config);
-        const response = await pool.request()
-        .input('Nombre',sql.VarChar, nombre)
-        .query(`SELECT * from ${personajeTabla} where Nombre = @Nombre`);
-        console.log(response)
-
-        return response.recordset[0];
     }
 }
