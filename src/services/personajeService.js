@@ -10,14 +10,17 @@ export class PersonajeService {
         console.log('This is a function on the service');
         let response = 0;
         const pool = await sql.connect(config);
-        if(nombre==undefined){
-            if(edad==undefined){
-                 response = await pool.request().query(`SELECT * from ${personajeTabla}`);
-            }else{
-                 response = await pool.request().input('Edad',sql.Int,edad).query(`SELECT * from ${personajeTabla} WHERE Edad=@edad`);
-            }
+        if(nombre && edad){
+            response = await pool.request()
+            .input('Edad',sql.Int,edad)
+            .input('Nombre',sql.VarChar,nombre)
+            .query(`SELECT * from ${personajeTabla} WHERE Edad=@Edad and Nombre=@Nombre`);
+        }else if(edad){
+            response = await pool.request().input('Edad',sql.Int,edad).query(`SELECT * from ${personajeTabla} WHERE Edad=@edad`);
+        }else if(nombre){
+            response = await pool.request().input('Nombre',sql.VarChar,nombre).query(`SELECT * from ${personajeTabla} WHERE Nombre=@nombre`);
         }else{
-             response = await pool.request().input('Nombre',sql.VarChar,nombre).query(`SELECT * from ${personajeTabla} WHERE Nombre=@nombre`);
+            response = await pool.request().query(`SELECT * from ${personajeTabla}`);
         }
         console.log(response)
 
