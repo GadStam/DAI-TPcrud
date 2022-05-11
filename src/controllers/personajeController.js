@@ -13,9 +13,9 @@ router.get('/', Authenticate, async (req, res) => {
 
   console.log(nombre);
   
-  const personajes = await personajeService.getPersonaje(nombre,edad);
+  const personaje = await personajeService.getPersonaje(nombre,edad);
 
-  return res.status(200).json(personajes);
+  return res.status(200).json(personaje);
 });
 
 
@@ -47,5 +47,21 @@ router.delete('/:id', Authenticate, async (req, res) => {
 });
 
 
+router.get('/characters', Authenticate, async (req, res) => {
+  console.log(`This is a get operation`);
+
+  const personaje = await personajeService.getCharacters();
+
+  return res.status(200).json(personaje);
+});
+
+router.get('/:id', async (req, res) => {
+  console.log(`Request URL Param: ${req.params.id}`);
+  console.log(`This is a get operation`);
+
+  const personaje = await personajeService.getCharacterById(req.params.id);
+
+  return res.status(200).json(personaje);
+});
 
 export default router;

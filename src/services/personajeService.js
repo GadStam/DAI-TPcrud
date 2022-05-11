@@ -3,6 +3,8 @@ import config from '../../db.js'
 import 'dotenv/config'
 
 const personajeTabla = process.env.DB_TABLA_PERSONAJE;
+const peliculaTabla = process.env.DB_TABLA_PELICULA;
+const peliculaXpersonajeTabla = process.env.DB_TABLA_PELICULAPERSONAJE;
 
 export class PersonajeService {
 
@@ -73,5 +75,27 @@ export class PersonajeService {
         console.log(response)
 
         return response.recordset;
+    }
+
+    getCharacters = async () => {
+        console.log('This is a function on the service');
+
+        const pool = await sql.connect(config);
+        const response = await pool.request().query(`SELECT Nombre, Imagen, Id from ${personajeTabla}`);
+        console.log(response)
+
+        return response.recordset;
+    }
+
+    getCharacterById = async (id) => {
+        console.log('This is a function on the service');
+
+        const pool = await sql.connect(config);
+        const response = await pool.request()
+            .input('Id',sql.Int, id)
+            .query(`SELECT m.* from ${peliculaXpersonajeTabla} pp, ${peliculaTabla} m where pp.Id_personaje=@Id and pp.Id_pelicula=m.Id`);
+        console.log(response)
+
+        return response.recordset[0];
     }
 }
