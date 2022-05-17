@@ -6,6 +6,7 @@ import { Authenticate } from '../common/jwt.strategy.js';
 const router = Router();
 const peliculaService = new PeliculaService();
 
+//Crea una pelicula
 router.post('', Authenticate, async (req, res) => {
     console.log(`This is a post operation`);
   
@@ -14,6 +15,7 @@ router.post('', Authenticate, async (req, res) => {
     return res.status(201).json(pelicula);
 });
   
+//Actualiza una pelicula
 router.put('/:id', Authenticate, async (req, res) => {
     console.log(`Request URL Param: ${req.params.id}`);
     console.log(`This is a put operation`);
@@ -23,7 +25,8 @@ router.put('/:id', Authenticate, async (req, res) => {
   
     return res.status(200).json(pelicula);
   });
-  
+
+//Borra una pelicula
 router.delete('/:id', Authenticate, async (req, res) => {
     console.log(`Request URL Param: ${req.params.id}`);
     console.log(`This is a delete operation`);
@@ -34,15 +37,19 @@ router.delete('/:id', Authenticate, async (req, res) => {
 })
 
 
-router.get('/movies', Authenticate, async (req, res) => {
+//Trae todas las peliculas 
+router.get('/', Authenticate, async (req, res) => {
+  let titulo = req.query.titulo;
+  let order = req.query.order
     console.log(`This is a get operation`);
   
-    const pelicula = await peliculaService.getMovies();
+    const pelicula = await peliculaService.getMovies(titulo,order);
   
     return res.status(200).json(pelicula);
   });
 
-  router.get('/:id', async (req, res) => {
+//Trae una pelicula según su Id y los actores
+  router.get('/:id', Authenticate, async (req, res) => {
     console.log(`Request URL Param: ${req.params.id}`);
     console.log(`This is a get operation`);
   

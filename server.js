@@ -14,8 +14,8 @@ app.use(express.json());
 passport.use(jwtStrategy);
 app.use(passport.initialize());
 
-app.use("/personaje", PersonajeRouter);
-app.use("/pelicula", PeliculaRouter);
+app.use("/characters", PersonajeRouter);
+app.use("/movies", PeliculaRouter);
 app.use("/auth", AuthRouter);
 
 app.listen(port, () => {

@@ -6,10 +6,12 @@ import { Authenticate } from '../common/jwt.strategy.js';
 const router = Router();
 const personajeService = new PersonajeService();
 
+//Trae personajes segun su nombre, edad o pelicula
 router.get('/', Authenticate, async (req, res) => {
   console.log(`This is a get operation`);
   let nombre = req.query.nombre;
   let edad = req.query.edad;
+  let id = req.query.id;
 
   console.log(nombre);
   
@@ -19,6 +21,7 @@ router.get('/', Authenticate, async (req, res) => {
 });
 
 
+//Crea personaje
 router.post('', Authenticate, async (req, res) => {
   console.log(`This is a post operation`);
 
@@ -27,6 +30,7 @@ router.post('', Authenticate, async (req, res) => {
   return res.status(201).json(personaje);
 });
 
+//Actualiza personaje 
 router.put('/:id', Authenticate, async (req, res) => {
   console.log(`Request URL Param: ${req.params.id}`);
   console.log(`This is a put operation`);
@@ -37,6 +41,7 @@ router.put('/:id', Authenticate, async (req, res) => {
   return res.status(200).json(personaje);
 });
 
+//Borra personaje
 router.delete('/:id', Authenticate, async (req, res) => {
   console.log(`Request URL Param: ${req.params.id}`);
   console.log(`This is a delete operation`);
@@ -47,15 +52,8 @@ router.delete('/:id', Authenticate, async (req, res) => {
 });
 
 
-router.get('/characters', Authenticate, async (req, res) => {
-  console.log(`This is a get operation`);
-
-  const personaje = await personajeService.getCharacters();
-
-  return res.status(200).json(personaje);
-});
-
-router.get('/:id', async (req, res) => {
+//Trae un personaje y sus peliculas
+router.get('/:id', Authenticate, async (req, res) => {
   console.log(`Request URL Param: ${req.params.id}`);
   console.log(`This is a get operation`);
 

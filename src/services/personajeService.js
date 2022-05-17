@@ -12,7 +12,7 @@ export class PersonajeService {
         console.log('This is a function on the service');
         let response = 0;
         const pool = await sql.connect(config);
-        if(nombre && edad && movie){
+        if(nombre && edad){
             response = await pool.request()
             .input('Edad',sql.Int,edad)
             .input('Nombre',sql.VarChar,nombre)
@@ -22,7 +22,7 @@ export class PersonajeService {
         }else if(nombre){
             response = await pool.request().input('Nombre',sql.VarChar,nombre).query(`SELECT * from ${personajeTabla} WHERE Nombre=@nombre`);
         }else{
-            response = await pool.request().query(`SELECT * from ${personajeTabla}`);
+            response = await pool.request().query(`SELECT Nombre, Imagen, Id from ${personajeTabla}`);
         }
         console.log(response)
 

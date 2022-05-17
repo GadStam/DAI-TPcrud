@@ -52,13 +52,18 @@ export class PeliculaService {
         return response.recordset;
     }
 
-    getMovies = async () => {
+    getMovies = async (titulo, order) => {
         console.log('This is a function on the service');
-
+        let response = 0;
         const pool = await sql.connect(config);
-        const response = await pool.request().query(`SELECT Titulo, Imagen, Id, Fecha from ${peliculaTabla}`);
+        if(titulo && order){
+            response = await pool.request()
+            .input('Titulo',sql.VarChar,titulo)
+            .query(`SELECT * from ${peliculaTabla} WHERE Titulo=@Titulo`);
+        }else{
+            response = await pool.request().query(`SELECT * from ${peliculaTabla}`);
+        }
         console.log(response)
-
         return response.recordset;
     }
 
