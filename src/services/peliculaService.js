@@ -57,10 +57,13 @@ export class PeliculaService {
         let response = 0;
         const pool = await sql.connect(config);
         if(titulo && order){
-            response = await pool.request()
-            .input('Titulo',sql.VarChar,titulo)
-            .query(`SELECT * from ${peliculaTabla} WHERE Titulo=@Titulo`);
-        }else{
+	    if(titulo){
+             	response = await pool.request()
+            	.input('Titulo',sql.VarChar,titulo)
+            	.query(`SELECT * from ${peliculaTabla} WHERE Titulo=@Titulo`);
+            	}else{
+            	.query((`SELECT * from ${peliculaTabla} ORDER BY Peliculas.Fecha ${order}`)
+            }else{
             response = await pool.request().query(`SELECT * from ${peliculaTabla}`);
         }
         console.log(response)
