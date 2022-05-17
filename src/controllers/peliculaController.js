@@ -42,5 +42,14 @@ router.get('/movies', Authenticate, async (req, res) => {
     return res.status(200).json(pelicula);
   });
 
+  router.get('/:id', async (req, res) => {
+    console.log(`Request URL Param: ${req.params.id}`);
+    console.log(`This is a get operation`);
+  
+    const movie = await peliculaService.getMovieById(req.params.id);
+  
+    return res.status(200).json(movie);
+  });
+
 export default router;
 
