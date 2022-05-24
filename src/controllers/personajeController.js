@@ -11,11 +11,11 @@ router.get('/', Authenticate, async (req, res) => {
   console.log(`This is a get operation`);
   let nombre = req.query.nombre;
   let edad = req.query.edad;
-  let id = req.query.id;
+  let id_movie = req.query.id_movie;
 
   console.log(nombre);
   
-  const personaje = await personajeService.getPersonaje(nombre,edad);
+  const personaje = await personajeService.getPersonaje(nombre,edad,id_movie);
 
   return res.status(200).json(personaje);
 });

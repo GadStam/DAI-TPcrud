@@ -8,23 +8,31 @@ const peliculaXpersonajeTabla = process.env.DB_TABLA_PELICULAPERSONAJE;
 
 export class PersonajeService {
 
-    getPersonaje = async (nombre,edad) => {
+    getPersonaje = async (nombre,edad,id_movie) => {
         console.log('This is a function on the service');
-        let response = 0;
+        let response;
         const pool = await sql.connect(config);
-        if(nombre && edad){
-            response = await pool.request()
-            .input('Edad',sql.Int,edad)
-            .input('Nombre',sql.VarChar,nombre)
-            .query(`SELECT * from ${personajeTabla} WHERE Edad=@Edad and Nombre=@Nombre`);
-        }else if(edad){
-            response = await pool.request().input('Edad',sql.Int,edad).query(`SELECT * from ${personajeTabla} WHERE Edad=@edad`);
+        let solicitud="";
+        if(nombre && edad && id_movie){
+            solicitud=`SELECT c.* from ${peliculaXpersonajeTabla} pp, ${personajeTabla} c WHERE c.Nombre=@Nombre and c.Edad=@Edad and pp.Id_pelicula=@Id`;
+        }else if(edad && nombre){
+            solicitud=`SELECT * from ${personajeTabla} WHERE Edad=@Edad and Nombre=@Nombre`;
+        }else if(edad && id_movie){
+            solicitud=`SELECT c.* from ${peliculaXpersonajeTabla} pp, ${personajeTabla} c WHERE c.Edad=@Edad and pp.Id_pelicula=@Id`;
+        }else if(id_movie && nombre){
+            solicitud=`SELECT c.* from ${peliculaXpersonajeTabla} pp, ${personajeTabla} c WHERE c.Nombre=@Nombre and pp.Id_pelicula=@Id`;
         }else if(nombre){
-            response = await pool.request().input('Nombre',sql.VarChar,nombre).query(`SELECT * from ${personajeTabla} WHERE Nombre=@nombre`);
+            solicitud=`SELECT * from ${personajeTabla} WHERE Nombre=@Nombre`;
+        }else if(edad){
+            solicitud=`SELECT * from ${personajeTabla} WHERE Edad=@Edad`;
+        }else if(id_movie){
+            solicitud=`SELECT c.* from ${peliculaXpersonajeTabla} pp, ${personajeTabla} c WHERE pp.Id_pelicula=@Id`;
         }else{
-            response = await pool.request().query(`SELECT Nombre, Imagen, Id from ${personajeTabla}`);
+            solicitud=`SELECT Nombre, Imagen, Id from ${personajeTabla}`;
         }
         console.log(response)
+
+        response=await pool.request().input('Edad',sql.Int,edad).input('Nombre',sql.VarChar,nombre).input('Id',sql.Int,id_movie).query(solicitud)
 
         return response.recordset;
     }
