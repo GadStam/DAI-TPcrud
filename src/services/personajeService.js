@@ -1,6 +1,7 @@
 import sql from 'mssql'
 import config from '../../db.js'
 import 'dotenv/config'
+import dbHelper from '../../Helper.js'
 
 const personajeTabla = process.env.DB_TABLA_PERSONAJE;
 const peliculaTabla = process.env.DB_TABLA_PELICULA;
@@ -8,54 +9,30 @@ const peliculaXpersonajeTabla = process.env.DB_TABLA_PELICULAPERSONAJE;
 
 export class PersonajeService {
 
-    getPersonaje = async (nombre,edad,id_movie) => {
+    getPersonaje = async (nombre,edad,id_movie,peso) => {
         console.log('This is a function on the service');
         let response;
-        const pool = await sql.connect(config);
-        let solicitud="";
-        if(nombre && edad && id_movie){
-            solicitud=`SELECT DISTINCT * from ${personajeTabla} c
-            inner join ${peliculaXpersonajeTabla} pp on pp.Id_personaje=c.Id 
-            WHERE Id_pelicula=@Id and c.Nombre=@Nombre and c.Edad=@Edad`;              
-        }else if(edad && nombre){
-            solicitud=`SELECT * from ${personajeTabla} WHERE Edad=@Edad and Nombre=@Nombre`;
-        }else if(edad && id_movie){
-            solicitud=`SELECT DISTINCT * from ${personajeTabla} c
-            inner join ${peliculaXpersonajeTabla} pp on pp.Id_personaje=c.Id 
-            WHERE Id_pelicula=@Id and c.Edad=@Edad`; 
-        }else if(id_movie && nombre){
-            solicitud=`SELECT DISTINCT * from ${personajeTabla} c
-            inner join ${peliculaXpersonajeTabla} pp on pp.Id_personaje=c.Id 
-            WHERE Id_pelicula=@Id and c.Nombre=@Nombre`;        
-        }else if(nombre){
-            solicitud=`SELECT * from ${personajeTabla} WHERE Nombre=@Nombre`;
-        }else if(edad){
-            solicitud=`SELECT * from ${personajeTabla} WHERE Edad=@Edad`;
-        }else if(id_movie){
-            solicitud=`SELECT DISTINCT * from ${personajeTabla} c
-            inner join ${peliculaXpersonajeTabla} pp on pp.Id_personaje=c.Id 
-            WHERE Id_pelicula=@Id`;
-        }else{
-            solicitud=`SELECT Nombre, Imagen, Id from ${personajeTabla}`;
+        let solicitud=`SELECT distinct Nombre, Imagen, Id from ${personajeTabla} c, ${peliculaXpersonajeTabla} pp WHERE c.Id=pp.Id_personaje`;
+        if(nombre){
+            solicitud+=` and Nombre=@Nombre`;              
+        }if(edad){
+            solicitud+=` and Edad=@Edad`;
+        }if(id_movie){
+            solicitud+=` and pp.Id_pelicula=@Id `; 
+        }if(peso){
+            solicitud+=` and Peso=@Peso `;
         }
 
-        response=await pool.request().input('Edad',sql.Int,edad).input('Nombre',sql.VarChar,nombre).input('Id',sql.Int,id_movie).query(solicitud)
+        response=await dbHelper(undefined, {nombre,edad,id_movie,peso}, solicitud)
 
         return response.recordset;
     }
 
     createPersonaje = async (personaje) => {
         console.log('This is a function on the service');
-
-        const pool = await sql.connect(config);
-        const response = await pool.request()
-            .input('Nombre',sql.VarChar, personaje?.Nombre ?? '')
-            .input('Imagen',sql.VarChar, personaje?.Imagen ?? '')
-            .input('Edad',sql.Int, personaje?.Edad ?? 0)
-            .input('Peso',sql.Float, personaje?.Peso ?? 0)
-            .input('Historia',sql.VarChar, personaje?.Historia ?? '')
-            .input('Nacimiento',sql.VarChar, personaje?.Nacimiento ?? '')
-            .query(`INSERT INTO ${personajeTabla}(Nombre, Imagen, Edad, Peso, Historia, Nacimiento) VALUES (@Nombre, @Imagen, @Edad, @Peso, @Historia, @Nacimiento)`);
+        let response;
+        let query=`INSERT INTO ${personajeTabla}(Nombre, Imagen, Edad, Peso, Historia, Nacimiento) VALUES (@Nombre, @Imagen, @Edad, @Peso, @Historia, @Nacimiento)`;
+        response=await dbHelper(undefined,personaje,query)
         console.log(response)
 
         return response.recordset;
@@ -63,17 +40,9 @@ export class PersonajeService {
 
     updatePersonajeById = async (id, personaje) => {
         console.log('This is a function on the service');
-
-        const pool = await sql.connect(config);
-        const response = await pool.request()
-            .input('Id',sql.Int, id)
-            .input('Nombre',sql.VarChar, personaje?.Nombre ?? '')
-            .input('Imagen',sql.VarChar, personaje?.Imagen ?? '')
-            .input('Edad',sql.Int, personaje?.Edad ?? 0)
-            .input('Peso',sql.Float, personaje?.Peso ?? 0)
-            .input('Historia',sql.VarChar, personaje?.Historia ?? '')
-            .input('Nacimiento',sql.VarChar, personaje?.Nacimiento ?? '')
-            .query(`UPDATE ${personajeTabla} SET Nombre = @Nombre, Imagen = @Imagen, Edad = @Edad, Peso = @Peso, Historia = @Historia, Nacimiento = @Nacimiento WHERE Id = @Id`);
+        let response;
+        let query=`UPDATE ${personajeTabla} SET Nombre = @Nombre, Imagen = @Imagen, Edad = @Edad, Peso = @Peso, Historia = @Historia, Nacimiento = @Nacimiento WHERE Id = @Id`;
+        response=await dbHelper(id,personaje,query)
         console.log(response)
         console.log(personaje.id)
 
@@ -82,21 +51,9 @@ export class PersonajeService {
 
     deletePersonajeById = async (id) => {
         console.log('This is a function on the service');
-
-        const pool = await sql.connect(config);
-        const response = await pool.request()
-            .input('Id',sql.Int, id)
-            .query(`DELETE FROM ${personajeTabla} WHERE Id = @Id`);
-        console.log(response)
-
-        return response.recordset;
-    }
-
-    getCharacters = async () => {
-        console.log('This is a function on the service');
-
-        const pool = await sql.connect(config);
-        const response = await pool.request().query(`SELECT Nombre, Imagen, Id from ${personajeTabla}`);
+        let response;
+        let query=`DELETE FROM ${personajeTabla} WHERE Id = @Id`
+        response=await dbHelper(id,undefined,query)
         console.log(response)
 
         return response.recordset;
@@ -118,5 +75,5 @@ export class PersonajeService {
         console.log(response)
 
         return personaje.recordset[0];
-    }
+        }
 }

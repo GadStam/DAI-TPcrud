@@ -12,10 +12,10 @@ router.get('/', Authenticate, async (req, res) => {
   let nombre = req.query.nombre;
   let edad = req.query.edad;
   let id_movie = req.query.id_movie;
+  let peso= req.query.peso;
 
-  console.log(nombre);
   
-  const personaje = await personajeService.getPersonaje(nombre,edad,id_movie);
+  const personaje = await personajeService.getPersonaje(nombre,edad,id_movie,peso);
 
   return res.status(200).json(personaje);
 });
